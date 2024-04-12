@@ -1,0 +1,16 @@
+## OS metafiles
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+/build/
+/classes/
+/bak/
+/build.num
+/*.bat
+/jpa-scopedentitymanager*.jar
+/*.war.zip
+/local.properties
+/TODO.txt

@@ -1,0 +1,73 @@
+﻿<html>
+<head>
+  <title>JPAExample2</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+
+<h3>JPAExample2</h3>
+Test ScopedEntityManager wrapper in Tomcat web application.<br/>
+
+<p>
+<a href="jpa_testdata.jsp">jpa_testdata.jsp</a><br/>
+Insert new rows to database.
+</p>
+
+<p>
+<a href="jpa0.jsp">jpa0.jsp</a><br/>
+List rows, use default findAll() helper function.
+</p>
+
+<p>
+<a href="jpa0.jsp?option=1">jpa0.jsp?option=1</a><br/>
+List rows using a custom EM query providing a sort ordering.
+</p>
+
+<p>
+<a href="jpa1.jsp">jpa1.jsp</a><br/>
+Update bean and list rows.
+</p>
+
+<p>
+<a href="jpa2.jsp">jpa2.jsp</a><br/>
+Run multiple threads, use several automanaged EM instances, print few db beans.
+</p>
+
+<p>
+<a href="rest/v1/test1">rest/v1/test1</a><br/>
+Rest api, simple text/plain method. 
+</p>
+
+<p>
+<a href="rest/v1/test1b">rest/v1/test1b</a><br/>
+Rest api, simple json method. 
+</p>
+
+<p>
+<a href="rest/v1/test1c">rest/v1/test1c</a><br/>
+Rest api, simple map to json method. 
+</p>
+
+<p>
+<a href="rest/v1/test2">rest/v1/test2</a><br/>
+Rest api, use jackson json generator for object serialization (custom non-db objects). 
+</p>
+
+<p>
+<a href="rest/v1/orders?sort=desc">rest/v1/orders</a><br/>
+Rest api, JPA query from db sort by desc. 
+</p>
+
+<p>
+<a href="rest/v2/orders2?sort=desc">rest/v2/orders2</a><br/>
+Rest api, JPA query from db sort by desc, use OrderHeader2 class. 
+</p>
+
+<p>
+<a href="rest/v1/orders?sort=foodoo">rest/v1/orders?sort=foodoo</a><br/>
+Rest api, throws a json exception. 
+</p>
+
+
+</body>
+</html>
