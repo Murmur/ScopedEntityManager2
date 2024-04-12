@@ -3,6 +3,8 @@ ScopedEntityManager2
 Java Persistence API(JPA_2.2) wrapper for the servlet container such as Apache Tomcat.
 Automanage Entity Manager lifetime within a http request context.
 
+See `example_webapp` folder with pregenerated jar library and dependencies.
+
 Inspiration
 -----------
 This wrapper is forked from [codegoogle scoped-entitymanager](https://code.google.com/p/scoped-entitymanager) project.
