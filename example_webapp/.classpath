@@ -13,6 +13,8 @@
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jackson-jakarta-rs-base-2.17.0.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jackson-annotations-2.17.0.jar"/>
 	<classpathentry kind="lib" path="web/WEB-INF/lib/jackson-datatype-jsr310-2.17.0.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/jersey-common-3.1.6.jar"/>
+	<classpathentry kind="lib" path="web/WEB-INF/lib/jersey-server-3.1.6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-10">
 		<attributes>
 			<attribute name="module" value="true"/>

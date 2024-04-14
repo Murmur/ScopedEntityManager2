@@ -12,7 +12,8 @@
 	<properties>
 		<property name="openjpa.DynamicEnhancementAgent" value="false" />
 		<property name="openjpa.RuntimeUnenhancedClasses" value="unsupported" /> 
-		<property name="openjpa.Log" value="DefaultLevel=WARN, Runtime=WARN, Tool=WARN, SQL=Trace"/>
+		<!-- <property name="openjpa.Log" value="DefaultLevel=WARN, Runtime=WARN, Tool=WARN, SQL=Trace"/> -->
+		<property name="openjpa.Log" value="DefaultLevel=WARN, Runtime=WARN, Tool=WARN, SQL=WARN"/>
 		<property name="openjpa.ConnectionFactoryProperties" value="PrintParameters=true" />
 	</properties>
 </persistence-unit>

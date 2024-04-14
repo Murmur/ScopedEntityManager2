@@ -1,12 +1,13 @@
 package test.rest;
 
 import java.io.*;
+import java.time.Instant;
 import java.util.*;
 
-import jakarta.servlet.http.HttpServletRequest; // javax.servlet.http.HttpServletRequest
-
+import jakarta.servlet.http.HttpServletRequest; // replace javax.*
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import jakarta.ws.rs.GET; // javax
+import jakarta.ws.rs.GET; // replace javax.*
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
@@ -21,6 +22,8 @@ import jakarta.ws.rs.core.StreamingOutput;
 import jakarta.ws.rs.ext.Providers;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -31,9 +34,12 @@ import test.OrderHeader;
 import test.OrderHeader2;
 import test.OrderRow;
 
+// Singleton: one instance per webapp context, default is a new instance per http request.
 @Path("") @Singleton
 public class OrderService {
 	@Context private Providers providers;
+	
+	@Inject private MyService myService;
 
 	@GET @Path("/{apiver}/test1")
 	@Produces({"text/plain;charset=UTF-8"})
@@ -49,6 +55,7 @@ public class OrderService {
 	        .ok(
 	        	"Hello "+key + ", api="+apiver
 	        	+ "\nreq="+debugReq
+	        	+ "\nmyServiceCounter="+myService.getCounter()
 	        	,MediaType.TEXT_PLAIN
 	        )
 	        .status(Response.Status.OK);
@@ -66,7 +73,8 @@ public class OrderService {
 		String str = "{\n"
 			+ "\"key1\":\"value1\","
 			+ "\n\"key2\": " + System.currentTimeMillis() +","
-			+ "\n\"key3\":\"value3 \uD83D\uDE00 \uD834\uDD60 \uD83D\uDCEB\""
+			+ "\n\"key3\":\"value3 \uD83D\uDE00 \uD834\uDD60 \uD83D\uDCEB\""  +","
+			+ "\n\"myServiceCounter\": " + myService.getCounter()
 			+ "\n}";
 		
 		CacheControl cc = new CacheControl();
@@ -85,6 +93,7 @@ public class OrderService {
 
 		Map<String,String> stats = PersistenceManager.getInstance().getStatistics();
 		stats.put("key1", "Map to json conversion test");
+		stats.put("myServiceCounter", ""+myService.getCounter());
 		
 		CacheControl cc = new CacheControl();
 		cc.setNoCache(true);		
@@ -92,6 +101,32 @@ public class OrderService {
 	    	.cacheControl(cc).status(Response.Status.OK);
 	  	return rb.build();
 	}
+
+	@GET @Path("/{apiver}/test1d")
+	@Produces({"application/json;charset=UTF-8"})
+	public final Response test1d(
+			@Context HttpServletRequest req,
+			@PathParam("apiver") String apiver,
+			@QueryParam("key") @DefaultValue("defval") String key) throws JsonProcessingException {		
+
+		// json format of Calendar and Instant is configured in ObjectMapper(MapperContextResolver.java)
+		List<Object> values=new ArrayList<Object>();
+		values.add("first");
+		values.add(2);
+		values.add(Calendar.getInstance()); // "2024-04-14T19:52:40+0300"
+		values.add(Instant.now()); // "2024-04-14T16:52:40.231734400Z" or "2024-04-14T16:52:40.231Z" 
+		values.add("myServiceCounter is "+myService.getCounter());
+		values.add("last");
+
+		ObjectMapper om = MyApplication.getObjectMapper(providers);
+		String data = om.writeValueAsString(values);		
+
+		CacheControl cc = new CacheControl();
+		cc.setNoCache(true);		
+	    Response.ResponseBuilder rb = Response.ok(data, "application/json;charset=UTF-8")
+	    	.cacheControl(cc).status(Response.Status.OK);
+	  	return rb.build();
+	}	
 	
 	@GET @Path("/{apiver}/test2")
 	@Produces({"application/json;charset=UTF-8"})
@@ -110,6 +145,7 @@ public class OrderService {
 					jsonG.writeObjectFieldStart("request");
 					jsonG.writeStringField("context", req.getContextPath());
 					jsonG.writeStringField("userAgent", req.getHeader("User-Agent"));
+					jsonG.writeNumberField("myServiceCounter", myService.getCounter());
 					jsonG.writeEndObject();
 
 					jsonG.writeArrayFieldStart("items");

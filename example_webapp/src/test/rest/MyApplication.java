@@ -1,11 +1,17 @@
 package test.rest;
 
 import java.util.*;
+
+import org.glassfish.jersey.internal.inject.AbstractBinder;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
+
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.cfg.Annotations;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
-//import jakarta.ws.rs.ApplicationPath;
-import jakarta.ws.rs.core.Application; // javax.ws.rs.core.Application;
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Providers;
 import jakarta.ws.rs.core.MediaType;
@@ -13,33 +19,27 @@ import jakarta.ws.rs.core.MediaType;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.fasterxml.jackson.jakarta.rs.cfg.Annotations;
-//import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 
 //@ApplicationPath("rest") path is configured in web.xml file
-public class MyApplication extends Application {
+public class MyApplication extends ResourceConfig {
+	
+	public MyApplication() {
+		Map<String, Object> props = new HashMap<>();        
+		props.put(ServerProperties.WADL_FEATURE_DISABLE, true);  // disable "/rest/application.wadl" even if app had JAXB libs enabled
+		setProperties(props);
 
-	@Override public Set<Class<?>> getClasses() {	
-		// ResourceService and Provider classes
-		Set<Class<?>> list = new HashSet<Class<?>>();
-		list.add(MapperContextResolver.class); // see also createJsonGenerator()
-		list.add(JsonProvider.class); // provider is a singleton
-		list.add(OrderService.class);
-		return list;
+		register(new JacksonJsonProvider(new Annotations[] { Annotations.JACKSON }));
+		register(MapperContextResolver.class); // see createJsonGenerator(), use singleton ObjectMapper in JerseyJson app
+		// register CDI @Inject classes: bind(ImplementationClass).to(InterfaceClass)
+		register(new AbstractBinder() {
+		    @Override protected void configure() {
+		    	bind(MyService.class).to(MyService.class);
+		    }
+		});
+
+		// register "/rest/*" resource service url entrypoints
+		register(OrderService.class);		
 	}
-	
-	//@Override public Set<Object> getSingletons() { // deprecated, use JsonProvider subclass
-	//	Set<Object> list = new HashSet<Object>();
-	//	// provider looks for shared singleton ObjectMapper by MapperContextResolver class
-	//	list.add( new JacksonJsonProvider( new Annotations[] { Annotations.JACKSON } ) );
-	//  return list;
-	//}
-	
-    @Override public Map<String, Object> getProperties() {
-       Map<String, Object> props = new HashMap<>();        
-       props.put("jersey.config.server.wadl.disableWadl", true); // disable wadl.xml
-       return props;
-    }
     
 	/**
 	 * Create JsonGenerator instance, this is called by RestService classes.

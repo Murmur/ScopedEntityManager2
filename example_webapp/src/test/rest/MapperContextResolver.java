@@ -10,7 +10,7 @@ import jakarta.ws.rs.ext.Provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+//import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
  * RestService classes may use ContextResolver to acquire
@@ -24,13 +24,16 @@ public class MapperContextResolver implements ContextResolver<ObjectMapper> {
 
     public MapperContextResolver() {
         mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule()); // support java8 datetime types
 		mapper.disable(SerializationFeature.INDENT_OUTPUT);
+        mapper.findAndRegisterModules(); //mapper.registerModule(new JavaTimeModule()); // support java8 datetime types
+
+        mapper.registerModule( new MyJsonModule() ); // customize few Java8 datetime formatters (Instant time type)
+		
 		//mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // enable=1433435279692 (utcMillis)
 		//mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // disable=2015-06-04T16:25:27.056+0000 (ISO8601_utc) 
 		DateFormat dtf = SimpleDateFormat.getDateTimeInstance();
 		((SimpleDateFormat)dtf).applyPattern("yyyy-MM-dd'T'HH:mm:ssZ"); // 2015-06-04T19:25:27+0300, use customized format
-		mapper.setDateFormat(dtf);
+		mapper.setDateFormat(dtf); // this works for legacy Calendar datatype
     }
 
     @Override public ObjectMapper getContext(Class<?> cls) {
