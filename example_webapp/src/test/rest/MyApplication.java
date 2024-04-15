@@ -38,7 +38,7 @@ public class MyApplication extends ResourceConfig {
 		});
 
 		// register "/rest/*" resource service url entrypoints
-		register(OrderService.class);		
+		register(OrderService.class);
 	}
     
 	/**
@@ -63,8 +63,14 @@ public class MyApplication extends ResourceConfig {
 	 * @return	ObjectMapper for json object handling
 	 */
 	public static ObjectMapper getObjectMapper(Providers providers) {
-		ContextResolver<ObjectMapper> resolver = providers.getContextResolver(ObjectMapper.class, MediaType.APPLICATION_JSON_TYPE);
-		return resolver.getContext(ObjectMapper.class);
+		// if providers==NULL then use a singleton hack, this provides access to ObjectMapper
+		// without jersey request context. Backend jobs may use this to reuse a json mapper.
+		if(providers==null) {
+			return MapperContextResolver.getInstance().getContext(ObjectMapper.class);
+		} else {
+			ContextResolver<ObjectMapper> resolver = providers.getContextResolver(ObjectMapper.class, MediaType.APPLICATION_JSON_TYPE);
+			return resolver.getContext(ObjectMapper.class);
+		}
 	}
 		
 }

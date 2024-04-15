@@ -2,6 +2,10 @@ package test.rest;
 
 import java.io.*;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import jakarta.servlet.http.HttpServletRequest; // replace javax.*
@@ -113,13 +117,24 @@ public class OrderService {
 		List<Object> values=new ArrayList<Object>();
 		values.add("first");
 		values.add(2);
-		values.add(Calendar.getInstance()); // "2024-04-14T19:52:40+0300"
-		values.add(Instant.now()); // "2024-04-14T16:52:40.231734400Z" or "2024-04-14T16:52:40.231Z" 
+		values.add( Arrays.asList("Calendar", Calendar.getInstance()) ); // "2024-04-14T19:52:40+0300"		
+		values.add( Arrays.asList("Instant", Instant.now()) ); // "2024-04-14T16:52:40.231Z", without custom formatter "2024-04-14T16:52:40.2317344" 
+		values.add( Arrays.asList("LocalDateTime", LocalDateTime.now()) ); // "2024-04-14T19:52:40" without timezone info
+
+		ZonedDateTime zonedNow = ZonedDateTime.now();
+		values.add( Arrays.asList("ZonedDateTime", zonedNow) ); // "2024-04-14T19:52:40+0300"		
+		DateTimeFormatter utcFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneId.of("UTC"));
+		values.add( Arrays.asList("ZonedDateTimeUTC", utcFormat.format(zonedNow)) ); // "2024-04-14T16:52:40Z" 
+		DateTimeFormatter nycFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ").withZone(ZoneId.of("America/New_York")); 
+		values.add( Arrays.asList("ZonedDateTimeNewYork", nycFormat.format(zonedNow)) ); // "2024-04-14T12:52:40-0400" 
+		DateTimeFormatter bkkFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ").withZone(ZoneId.of("Asia/Bangkok")); 
+		values.add( Arrays.asList("ZonedDateTimeBangkok", bkkFormat.format(zonedNow)) ); // "2024-04-14T23:52:40+0700" 
+		
 		values.add("myServiceCounter is "+myService.getCounter());
 		values.add("last");
 
-		ObjectMapper om = MyApplication.getObjectMapper(providers);
-		String data = om.writeValueAsString(values);		
+		ObjectMapper om = MyApplication.getObjectMapper(null); // test getter without a providers context value (providers)
+		String data = om.writeValueAsString(values);
 
 		CacheControl cc = new CacheControl();
 		cc.setNoCache(true);		
